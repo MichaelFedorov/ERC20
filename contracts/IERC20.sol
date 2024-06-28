@@ -15,7 +15,7 @@ interface IERC20 {
 
     function balanceOf(address account) external view returns (uint);
 
-    function transer(address to, uint amount) external returns (bool);
+    function transfer(address to, uint amount) external returns (bool);
 
     function allowance(address owner, address spender) external view returns (uint);
 
