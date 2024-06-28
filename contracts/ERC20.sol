@@ -48,4 +48,28 @@ contract ERC20 {
         emit Transfer(msg.sender, to, amount);
         return true;
     };
+
+    function allowance(address _owner, address spender) public view returns (uint) {
+        return _allowances[_owner][spender];
+    };
+
+    function approve(address spender, uint amount) public view returns (bool) {
+        _approve(msg.sender, spender, amout);
+        return true;
+    }
+
+    function _approve(address sender, address spender, uint amount) internal virtual {
+        _allowances[sender][spender] = amount;
+        emit Approval(sender, spender, amount);
+    }
+
+    function transferFrom (address sender, address recepient, uint amount) public {
+        uint currentAllowance = _allowances[sender][recepient];
+        if (currentAllowance < amount) {
+            revert ErrorrInsuficcientAllowance(recepient, currentAllowance, amount);
+        }
+        _allowances[sender][recepient] -= amount;
+        balances[sender] -= amount;
+        balances[recepient] += amount;
+    }
 }

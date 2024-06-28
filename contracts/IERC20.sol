@@ -7,20 +7,20 @@ interface IERC20 {
 
     event Approval(address indexed owner, address indexed spender, uint amount);
 
-    function name() public view returns  (string memory);
-    function symbol() public view returns (string memory);
-    function decimal() public view returns (uint);
+    function name() external view returns  (string memory);
+    function symbol() external view returns (string memory);
+    function decimal() external view returns (uint);
 
-    function totalSupply() public view returns (uint);
+    function totalSupply() external view returns (uint);
 
-    function balanceOf(address account) public view returns (uint);
+    function balanceOf(address account) external view returns (uint);
 
-    function transer(address to, uint amount) public returns (bool);
+    function transer(address to, uint amount) external returns (bool);
 
-    function allowance(address owner, address spender) public view returns (bool);
+    function allowance(address owner, address spender) external view returns (uint);
 
-    function approve(address spender, uint amount) public returns (bool);
+    function approve(address spender, uint amount) external returns (bool);
 
-    function transferFrom(address sender, address recepient, uint amount) public returns (bool);
+    function transferFrom(address spender, address recepient, uint amount) external returns (bool);
 
 }
