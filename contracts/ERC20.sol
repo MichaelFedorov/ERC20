@@ -5,7 +5,7 @@ pragma solidity ^0.8.24;
 import "./IERC20.sol";
 import "./IERC20Errors.sol";
 
-contract ERC20 {
+abstract contract ERC20 is IERC20, IERC20Errors{
     address public owner;
     mapping(address => uint) private _balances;
     mapping(address => mapping(address => uint)) private _allowances;
@@ -16,7 +16,6 @@ contract ERC20 {
     string private _symbol;
 
     modifier onlyOwner {
-
         require(msg.sender == owner, "You are not the owner");
         _;
     }
@@ -45,18 +44,18 @@ contract ERC20 {
         return _balances[account];
     }
 
-    function transfer(address to, uint amount) public returns (bool) {
+    function transfer(address to, uint amount) public virtual returns (bool) {
         _updateBalances(msg.sender, to, amount);
         return true;
     }
 
     
-    function allowance(address _owner, address spender) public view returns (uint) {
+    function allowance(address _owner, address spender) public view virtual returns (uint) {
         return _allowances[_owner][spender];
     }
 
-    function approve(address spender, uint amount) public view returns (bool) {
-        _approve(msg.sender, spender, amout);
+    function approve(address spender, uint amount) public virtual returns (bool) {
+        _approve(msg.sender, spender, amount);
         return true;
     }
 
@@ -65,13 +64,14 @@ contract ERC20 {
         emit Approval(sender, spender, amount);
     }
 
-    function transferFrom(address sender, address recepient, uint amount) public {
+    function transferFrom(address sender, address recepient, uint amount) public returns (bool) {
         uint currentAllowance = _allowances[sender][recepient];
         if (currentAllowance < amount) {
-            revert ErrorInsuficcientAllowance(recepient, currentAllowance, amount);
+            revert ErrorInsufficientAllowance(recepient, recepient, amount);
         }
         _allowances[sender][recepient] -= amount;
-        _transfer(sender, recepient, amout);
+        _transfer(sender, recepient, amount);
+        return true;
     }
 
     function _transfer(address from, address to, uint amount) internal {
@@ -82,12 +82,12 @@ contract ERC20 {
             revert ErrorInvalidReceiver(to);
         }
 
-        _updateBalances(from, to, amout);
+        _updateBalances(from, to, amount);
     }
 
     function _updateBalances(address from, address to, uint amount) internal {
         if (_balances[from] < amount) {
-            revert ErrorInsufficcientBalance(from, _balances[from], amount);
+            revert ErrorInsufficientBalance(from, _balances[from], amount);
         }
         _balances[from] -= amount;
         _balances[to] += amount;
@@ -95,7 +95,7 @@ contract ERC20 {
         emit Transfer(from, to, amount);
     }
 
-    function _mint(address account, uint amount) internal virtual{
+    function _mint(address account, uint amount) internal {
         if (account == address(0)) {
             revert ErrorInvalidReceiver(account);
         }
@@ -111,7 +111,7 @@ contract ERC20 {
             revert ErrorInvalidSender(account);
         }
         if (balanceFrom < amount) {
-            revert ErrorInsufficcientBalance(account, balanceFrom, amount);
+            revert ErrorInsufficientBalance(account, balanceFrom, amount);
         }
         _balances[account] = balanceFrom - amount;
         _totalSupply -= amount;
