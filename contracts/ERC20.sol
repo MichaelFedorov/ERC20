@@ -42,12 +42,11 @@ contract ERC20 {
     };
 
     function transfer(address to, uint amount) public returns (bool) {
-        balances[msg.sender] -= amount;
-        balances[to] +=amount;
-        
-        emit Transfer(msg.sender, to, amount);
+        _updateBalances(msg.sender, to, amount);
         return true;
     };
+
+    
 
     function allowance(address _owner, address spender) public view returns (uint) {
         return _allowances[_owner][spender];
@@ -69,7 +68,27 @@ contract ERC20 {
             revert ErrorrInsuficcientAllowance(recepient, currentAllowance, amount);
         }
         _allowances[sender][recepient] -= amount;
-        balances[sender] -= amount;
-        balances[recepient] += amount;
+        _transfer(sender, recepient, amout);
+    }
+
+    function _transfer(address from, address to, uint amount) internal {
+        if (from == address(0)) {
+            revert ErrorInvalidSender(from);
+        }
+        if (to == address(0)) {
+            revert ErrorInvalidReceiver(to);
+        }
+
+        _updateBalances(from, to, amout);
+    }
+
+    function _updateBalances(address from, address to, uint amount) internal {
+        if (_balances[from] < amount) {
+            revert ErrorInsufficcientBalance(from, _balances[from], amount);
+        }
+        _balances[from] -= amount;
+        _balances[to] += amount;
+
+        emit Transfer(from, to, amount);
     }
 }
